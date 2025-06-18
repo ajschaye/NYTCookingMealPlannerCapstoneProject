@@ -11,7 +11,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate request body
       const validatedData = dinnerPlanRequestSchema.parse(req.body);
       
-      const webhookUrl = "https://ajschaye.app.n8n.cloud/webhook-test/d5ea5179-63ff-44da-8b22-1fba75497182";
+      const webhookUrl = "https://ajschaye.app.n8n.cloud/webhook/d5ea5179-63ff-44da-8b22-1fba75497182";
       
       // Transform data to match webhook format
       const webhookPayload = {

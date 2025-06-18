@@ -205,7 +205,12 @@ export default function DinnerPlanner() {
   const onSubmit = (data: DinnerPlanRequest) => {
     // Store the webhook payload for test mode display
     if (testMode) {
-      setWebhookPayload(JSON.stringify(data, null, 2));
+      const webhookPayload = {
+        number_of_meals: data.dinnerCount,
+        personalization: data.preferences || "",
+        mealTypes: ["dinner"]
+      };
+      setWebhookPayload(JSON.stringify(webhookPayload, null, 2));
     }
     planDinnersMutation.mutate(data);
   };

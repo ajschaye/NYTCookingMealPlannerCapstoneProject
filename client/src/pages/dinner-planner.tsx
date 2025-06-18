@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { HelpCircle, Loader2, Utensils } from "lucide-react";
+import { HelpCircle, Loader2, Utensils, ThumbsUp, ThumbsDown, RotateCcw } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -419,67 +419,95 @@ export default function DinnerPlanner() {
         {/* Results */}
         {showResults && (
           <div id="results-container" className="mt-8">
-            <Card
-              className="shadow-sm"
-              style={{ borderColor: "var(--border-light)" }}
-            >
-              <CardContent className="p-8">
-                <h2
-                  className="text-xl font-semibold mb-6"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  Your Dinner Plan
-                </h2>
-                <div className="space-y-4">
-                  {meals.map((meal, index) => (
-                    <div
-                      key={index}
-                      className="border rounded-lg p-6 hover:shadow-md transition-shadow"
-                      style={{ borderColor: "var(--border-light)" }}
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <h3
-                          className="text-lg font-medium"
-                          style={{ color: "var(--text-primary)" }}
-                        >
-                          Dinner {index + 1}
-                        </h3>
-                        {meal.cookTime && (
-                          <span
-                            className="text-sm"
-                            style={{ color: "var(--text-secondary)" }}
-                          >
-                            {meal.cookTime}
-                          </span>
-                        )}
-                      </div>
-                      <p
-                        className="mb-4"
-                        style={{ color: "var(--text-secondary)" }}
-                      >
-                        {meal.description}
-                      </p>
-                      {meal.tags && meal.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {meal.tags.map((tag, tagIndex) => (
-                            <span
-                              key={tagIndex}
-                              className="px-2 py-1 text-xs rounded-full"
-                              style={{
-                                backgroundColor: "var(--muted)",
-                                color: "var(--text-secondary)",
-                              }}
+            <div className="mb-8">
+              <h2
+                className="text-2xl font-semibold mb-6"
+                style={{ color: "var(--success)" }}
+              >
+                Your Personalized Dinner Plan
+              </h2>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {meals.map((meal, index) => (
+                  <Card
+                    key={index}
+                    className="shadow-sm hover:shadow-md transition-shadow"
+                    style={{ borderColor: "var(--border-light)" }}
+                  >
+                    <CardContent className="p-6">
+                      <div className="space-y-4">
+                        {/* Meal Title - Bold, Red, Clickable */}
+                        <div>
+                          {meal.mealLink ? (
+                            <a
+                              href={meal.mealLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-lg font-bold text-red-600 hover:text-red-700 hover:underline cursor-pointer"
                             >
-                              {tag}
-                            </span>
-                          ))}
+                              {meal.mealName || meal.name}
+                            </a>
+                          ) : (
+                            <h3 className="text-lg font-bold text-red-600">
+                              {meal.mealName || meal.name}
+                            </h3>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+
+                        {/* Cuisine and Cook Time */}
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          {meal.cuisine && (
+                            <>
+                              <span>{meal.cuisine}</span>
+                              {meal.cookTime && <span>•</span>}
+                            </>
+                          )}
+                          {meal.cookTime && <span>{meal.cookTime}</span>}
+                        </div>
+
+                        {/* Reason - Single sentence */}
+                        {meal.reason && (
+                          <p className="text-sm text-gray-700 leading-relaxed">
+                            {meal.reason}
+                          </p>
+                        )}
+
+                        {/* Description fallback if no reason */}
+                        {!meal.reason && meal.description && (
+                          <p className="text-sm text-gray-700 leading-relaxed">
+                            {meal.description}
+                          </p>
+                        )}
+
+                        {/* Action Icons in bottom right */}
+                        <div className="flex justify-end items-center gap-3 mt-4">
+                          <button
+                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                            onClick={() => console.log('Thumbs down:', meal.mealName || meal.name)}
+                            title="Thumbs down"
+                          >
+                            <ThumbsDown className="w-4 h-4 text-gray-500 hover:text-red-500" />
+                          </button>
+                          <button
+                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                            onClick={() => console.log('Thumbs up:', meal.mealName || meal.name)}
+                            title="Thumbs up"
+                          >
+                            <ThumbsUp className="w-4 h-4 text-gray-500 hover:text-green-500" />
+                          </button>
+                          <button
+                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                            onClick={() => console.log('Regenerate:', meal.mealName || meal.name)}
+                            title="Regenerate"
+                          >
+                            <RotateCcw className="w-4 h-4 text-gray-500 hover:text-blue-500" />
+                          </button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>

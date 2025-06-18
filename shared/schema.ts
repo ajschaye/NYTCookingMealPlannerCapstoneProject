@@ -24,10 +24,15 @@ export const dinnerPlanRequestSchema = z.object({
 });
 
 export const mealSchema = z.object({
-  name: z.string(),
-  description: z.string(),
+  mealName: z.string(),
+  mealLink: z.string().optional(),
+  cuisine: z.string().optional(),
   cookTime: z.string().optional(),
+  reason: z.string().optional(),
+  description: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  // Legacy field for backward compatibility
+  name: z.string().optional(),
 });
 
 export const dinnerPlanResponseSchema = z.object({

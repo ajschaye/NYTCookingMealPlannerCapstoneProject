@@ -27,6 +27,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import {
@@ -43,6 +50,10 @@ export default function DinnerPlanner() {
   const [webhookPayload, setWebhookPayload] = useState<string>("");
   const [webhookResponse, setWebhookResponse] = useState<string>("");
   const [likedMeals, setLikedMeals] = useState<Set<number>>(new Set());
+  const [dislikedMeals, setDislikedMeals] = useState<Set<number>>(new Set());
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+  const [selectedMealForFeedback, setSelectedMealForFeedback] = useState<number | null>(null);
+  const [feedbackText, setFeedbackText] = useState("");
   const { toast } = useToast();
 
   // Clear webhook payload when test mode is turned off
@@ -62,9 +73,62 @@ export default function DinnerPlanner() {
         newLikedMeals.delete(mealIndex);
       } else {
         newLikedMeals.add(mealIndex);
+        // Remove from disliked if it was disliked
+        setDislikedMeals(prevDisliked => {
+          const newDislikedMeals = new Set(prevDisliked);
+          newDislikedMeals.delete(mealIndex);
+          return newDislikedMeals;
+        });
       }
       return newLikedMeals;
     });
+  };
+
+  // Handle thumbs down click
+  const handleThumbsDown = (mealIndex: number) => {
+    setSelectedMealForFeedback(mealIndex);
+    setFeedbackDialogOpen(true);
+    setFeedbackText("");
+  };
+
+  // Submit feedback and mark meal as disliked
+  const submitFeedback = () => {
+    if (selectedMealForFeedback !== null) {
+      setDislikedMeals(prev => {
+        const newDislikedMeals = new Set(prev);
+        newDislikedMeals.add(selectedMealForFeedback);
+        return newDislikedMeals;
+      });
+      
+      // Remove from liked if it was liked
+      setLikedMeals(prev => {
+        const newLikedMeals = new Set(prev);
+        newLikedMeals.delete(selectedMealForFeedback);
+        return newLikedMeals;
+      });
+
+      console.log('Thumbs down feedback:', {
+        mealIndex: selectedMealForFeedback,
+        mealName: meals[selectedMealForFeedback]?.mealName || meals[selectedMealForFeedback]?.name,
+        feedback: feedbackText
+      });
+
+      toast({
+        title: "Feedback Received",
+        description: "Thank you for your feedback! We'll use it to improve future recommendations.",
+      });
+    }
+    
+    setFeedbackDialogOpen(false);
+    setSelectedMealForFeedback(null);
+    setFeedbackText("");
+  };
+
+  // Cancel feedback dialog
+  const cancelFeedback = () => {
+    setFeedbackDialogOpen(false);
+    setSelectedMealForFeedback(null);
+    setFeedbackText("");
   };
 
   const form = useForm<DinnerPlanRequest>({
@@ -106,6 +170,7 @@ export default function DinnerPlanner() {
       console.log('Processed meals:', meals);
       setMeals(meals);
       setLikedMeals(new Set()); // Clear liked meals for new results
+      setDislikedMeals(new Set()); // Clear disliked meals for new results
       setShowResults(true);
 
       // Store webhook response for test mode
@@ -529,10 +594,16 @@ export default function DinnerPlanner() {
                             </button>
                             <button
                               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                              onClick={() => console.log('Thumbs down:', meal.mealName || meal.name)}
+                              onClick={() => handleThumbsDown(index)}
                               title="Thumbs down"
                             >
-                              <ThumbsDown className="w-4 h-4 text-gray-500 hover:text-red-500" />
+                              <ThumbsDown 
+                                className={`w-4 h-4 transition-colors ${
+                                  dislikedMeals.has(index) 
+                                    ? 'text-red-500 fill-red-500' 
+                                    : 'text-gray-500 hover:text-red-500'
+                                }`} 
+                              />
                             </button>
                             <button
                               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -566,6 +637,41 @@ export default function DinnerPlanner() {
           />
         </div>
       </div>
+
+      {/* Feedback Dialog */}
+      <Dialog open={feedbackDialogOpen} onOpenChange={setFeedbackDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Why wasn't this a good choice?</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="Tell us why..."
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              rows={4}
+              className="resize-none"
+              style={{ borderColor: "var(--border-light)" }}
+            />
+          </div>
+          <DialogFooter className="flex gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              onClick={cancelFeedback}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={submitFeedback}
+              className="flex-1"
+              style={{ backgroundColor: "var(--brand-red)" }}
+            >
+              Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

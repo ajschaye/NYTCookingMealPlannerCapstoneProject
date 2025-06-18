@@ -145,7 +145,7 @@ export default function DinnerPlanner() {
                         <FormItem className="flex-1">
                           <div className="flex items-center gap-4">
                             <FormLabel
-                              className="text-lg font-medium"
+                              className="text-lg font-bold"
                               style={{ color: "var(--text-primary)" }}
                             >
                               How many dinners would you like to plan?

@@ -67,8 +67,19 @@ export default function DinnerPlanner() {
       const response = await apiRequest("POST", "/api/plan-dinners", data);
       return response.json();
     },
-    onSuccess: (data: DinnerPlanResponse) => {
-      if (data.success === false) {
+    onSuccess: (data: any) => {
+      console.log('Webhook response:', data);
+      
+      // Handle different response formats
+      let meals: any[] = [];
+      
+      if (Array.isArray(data)) {
+        // If response is directly an array of meals
+        meals = data;
+      } else if (data.meals && Array.isArray(data.meals)) {
+        // If response has meals property
+        meals = data.meals;
+      } else if (data.success === false) {
         toast({
           title: "Planning Failed",
           description:
@@ -78,7 +89,8 @@ export default function DinnerPlanner() {
         return;
       }
 
-      setMeals(data.meals || []);
+      console.log('Processed meals:', meals);
+      setMeals(meals);
       setShowResults(true);
 
       // Store webhook response for test mode

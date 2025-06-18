@@ -11,7 +11,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       status: "ok",
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || "development",
-      webhookConfigured: !!(process.env.WEBHOOK_USER && process.env.WEBHOOK_PWD)
+      webhookConfigured: !!(process.env.WEBHOOK_USER && process.env.WEBHOOK_PWD),
+      deploymentType: process.env.NODE_ENV === "production" ? "full-stack" : "development",
+      serverRunning: true
     });
   });
 

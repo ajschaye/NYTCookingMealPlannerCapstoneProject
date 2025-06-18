@@ -131,6 +131,12 @@ export default function DinnerPlanner() {
     setFeedbackText("");
   };
 
+  // Handle regenerating a single meal
+  const handleRegenerateMeal = (mealIndex: number) => {
+    const currentPreferences = form.getValues("preferences") || "";
+    regenerateMealMutation.mutate({ mealIndex, preferences: currentPreferences });
+  };
+
   const form = useForm<DinnerPlanRequest>({
     resolver: zodResolver(dinnerPlanRequestSchema),
     defaultValues: {
@@ -300,6 +306,73 @@ export default function DinnerPlanner() {
           variant: "destructive",
         });
       }
+    },
+  });
+
+  // Mutation for regenerating a single meal
+  const regenerateMealMutation = useMutation({
+    mutationFn: async ({ mealIndex, preferences }: { mealIndex: number; preferences: string }) => {
+      const data: DinnerPlanRequest = {
+        dinnerCount: 1,
+        preferences,
+        timestamp: new Date().toISOString(),
+      };
+      const response = await apiRequest("POST", "/api/plan-dinners", data);
+      return { mealIndex, data: await response.json() };
+    },
+    onSuccess: ({ mealIndex, data }) => {
+      console.log('Regeneration response:', data);
+      
+      // Handle different response formats
+      let newMeals: any[] = [];
+      
+      if (Array.isArray(data)) {
+        newMeals = data;
+      } else if (data.meals && Array.isArray(data.meals)) {
+        newMeals = data.meals;
+      } else if (data.success === false) {
+        toast({
+          title: "Regeneration Failed",
+          description: data.message || "Failed to regenerate the meal. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (newMeals.length > 0) {
+        // Replace only the meal at the specified index
+        setMeals(prevMeals => {
+          const updatedMeals = [...prevMeals];
+          updatedMeals[mealIndex] = newMeals[0];
+          return updatedMeals;
+        });
+        
+        // Clear the liked/disliked status for the regenerated meal
+        setLikedMeals(prev => {
+          const newLikedMeals = new Set(prev);
+          newLikedMeals.delete(mealIndex);
+          return newLikedMeals;
+        });
+        
+        setDislikedMeals(prev => {
+          const newDislikedMeals = new Set(prev);
+          newDislikedMeals.delete(mealIndex);
+          return newDislikedMeals;
+        });
+
+        toast({
+          title: "Success!",
+          description: "Meal regenerated successfully!",
+        });
+      }
+    },
+    onError: (error: any) => {
+      console.error("Error regenerating meal:", error);
+      toast({
+        title: "Error",
+        description: "Failed to regenerate the meal. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -607,10 +680,15 @@ export default function DinnerPlanner() {
                             </button>
                             <button
                               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                              onClick={() => console.log('Regenerate:', meal.mealName || meal.name)}
+                              onClick={() => handleRegenerateMeal(index)}
                               title="Regenerate"
+                              disabled={regenerateMealMutation.isPending}
                             >
-                              <RotateCcw className="w-4 h-4 text-gray-500 hover:text-blue-500" />
+                              <RotateCcw className={`w-4 h-4 transition-colors ${
+                                regenerateMealMutation.isPending 
+                                  ? 'text-blue-500 animate-spin' 
+                                  : 'text-gray-500 hover:text-blue-500'
+                              }`} />
                             </button>
                           </div>
                         </div>

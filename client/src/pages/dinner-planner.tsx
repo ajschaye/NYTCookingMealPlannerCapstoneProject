@@ -82,14 +82,48 @@ export default function DinnerPlanner() {
         });
       }, 100);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Error planning dinners:", error);
-      toast({
-        title: "Error",
-        description:
-          "Sorry, we encountered an error planning your dinners. Please try again.",
-        variant: "destructive",
-      });
+      
+      let errorMessage = "Sorry, we encountered an error planning your dinners. Please try again.";
+      
+      // Try to extract more specific error message from the response
+      if (error?.response?.json) {
+        error.response.json().then((data: any) => {
+          if (data?.message) {
+            toast({
+              title: "Error",
+              description: data.message,
+              variant: "destructive",
+            });
+          }
+        }).catch(() => {
+          toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
+        });
+      } else if (error?.message) {
+        errorMessage = error.message;
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      } else if (typeof error === 'string') {
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     },
   });
 

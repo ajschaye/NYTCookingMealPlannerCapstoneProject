@@ -44,7 +44,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (!webhookResponse.ok) {
-        throw new Error(`Webhook request failed with status ${webhookResponse.status}`);
+        const errorText = await webhookResponse.text();
+        console.error(`Webhook error (${webhookResponse.status}):`, errorText);
+        
+        return res.status(500).json({
+          success: false,
+          message: `Webhook request failed: ${webhookResponse.status} ${webhookResponse.statusText}. ${errorText ? 'Details: ' + errorText : ''}`
+        });
       }
 
       const webhookData = await webhookResponse.json();

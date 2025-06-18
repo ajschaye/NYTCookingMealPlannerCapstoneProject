@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { HelpCircle, Loader2 } from "lucide-react";
+import { HelpCircle, Loader2, Utensils } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -80,9 +80,7 @@ export default function DinnerPlanner() {
         <Card className="mb-8 shadow-sm" style={{ borderColor: 'var(--border-light)' }}>
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
-              <div className="text-2xl font-bold" style={{ color: 'var(--brand-red)' }}>
-                49
-              </div>
+              <Utensils className="text-2xl h-8 w-8" style={{ color: 'var(--brand-red)' }} />
               <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
                 Your Personal Dinner Planner
               </h1>

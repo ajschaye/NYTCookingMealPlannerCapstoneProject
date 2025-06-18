@@ -183,7 +183,7 @@ export default function DinnerPlanner() {
                   <Button
                     type="submit"
                     className="w-full font-medium py-4 px-6 transition-colors"
-                    style={{ backgroundColor: 'var(--brand-blue)' }}
+                    style={{ backgroundColor: 'var(--brand-red)' }}
                     disabled={planDinnersMutation.isPending}
                   >
                     {planDinnersMutation.isPending ? (

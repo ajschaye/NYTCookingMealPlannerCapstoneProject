@@ -42,6 +42,7 @@ export default function DinnerPlanner() {
   const [testMode, setTestMode] = useState(false);
   const [webhookPayload, setWebhookPayload] = useState<string>("");
   const [webhookResponse, setWebhookResponse] = useState<string>("");
+  const [likedMeals, setLikedMeals] = useState<Set<number>>(new Set());
   const { toast } = useToast();
 
   // Clear webhook payload when test mode is turned off
@@ -51,6 +52,19 @@ export default function DinnerPlanner() {
       setWebhookPayload("");
       setWebhookResponse("");
     }
+  };
+
+  // Toggle liked status for a meal
+  const toggleLikedMeal = (mealIndex: number) => {
+    setLikedMeals(prev => {
+      const newLikedMeals = new Set(prev);
+      if (newLikedMeals.has(mealIndex)) {
+        newLikedMeals.delete(mealIndex);
+      } else {
+        newLikedMeals.add(mealIndex);
+      }
+      return newLikedMeals;
+    });
   };
 
   const form = useForm<DinnerPlanRequest>({
@@ -91,6 +105,7 @@ export default function DinnerPlanner() {
 
       console.log('Processed meals:', meals);
       setMeals(meals);
+      setLikedMeals(new Set()); // Clear liked meals for new results
       setShowResults(true);
 
       // Store webhook response for test mode
@@ -498,10 +513,19 @@ export default function DinnerPlanner() {
                           <div className="flex justify-end items-center gap-3 mt-4">
                             <button
                               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                              onClick={() => console.log('Thumbs up:', meal.mealName || meal.name)}
+                              onClick={() => {
+                                toggleLikedMeal(index);
+                                console.log('Thumbs up:', meal.mealName || meal.name);
+                              }}
                               title="Thumbs up"
                             >
-                              <ThumbsUp className="w-4 h-4 text-gray-500 hover:text-green-500" />
+                              <ThumbsUp 
+                                className={`w-4 h-4 transition-colors ${
+                                  likedMeals.has(index) 
+                                    ? 'text-green-500 fill-green-500' 
+                                    : 'text-gray-500 hover:text-green-500'
+                                }`} 
+                              />
                             </button>
                             <button
                               className="p-2 rounded-full hover:bg-gray-100 transition-colors"

@@ -11,23 +11,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate request body
       const validatedData = dinnerPlanRequestSchema.parse(req.body);
       
-      // Get webhook URL from environment variables
-      const webhookUrl = process.env.DINNER_PLANNER_WEBHOOK_URL || process.env.WEBHOOK_URL;
+      const webhookUrl = "https://ajschaye.app.n8n.cloud/webhook-test/d5ea5179-63ff-44da-8b22-1fba75497182";
       
-      if (!webhookUrl) {
-        return res.status(500).json({
-          success: false,
-          message: "Webhook URL not configured. Please set DINNER_PLANNER_WEBHOOK_URL or WEBHOOK_URL environment variable."
-        });
-      }
+      // Transform data to match webhook format
+      const webhookPayload = {
+        number_of_meals: validatedData.dinnerCount,
+        personalization: validatedData.preferences || "",
+        meal_type: "dinner"
+      };
 
       // Send request to webhook
       const webhookResponse = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'CapstoneTestCred': 'CapstoneTestCred1234567890'
         },
-        body: JSON.stringify(validatedData)
+        body: JSON.stringify(webhookPayload)
       });
 
       if (!webhookResponse.ok) {

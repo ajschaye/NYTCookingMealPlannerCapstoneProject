@@ -19,7 +19,7 @@ export type User = typeof users.$inferSelect;
 // Dinner planner schemas
 export const dinnerPlanRequestSchema = z.object({
   dinnerCount: z.number().min(1).max(7),
-  preferences: z.string().min(10, "Please provide more detailed preferences"),
+  preferences: z.string().optional(),
   timestamp: z.string().optional(),
 });
 

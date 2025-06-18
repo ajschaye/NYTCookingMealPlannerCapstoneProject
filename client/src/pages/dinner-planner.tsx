@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { HelpCircle, Loader2, Utensils } from "lucide-react";
 import {
   Tooltip,
@@ -38,6 +39,7 @@ import {
 export default function DinnerPlanner() {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [testMode, setTestMode] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<DinnerPlanRequest>({
@@ -86,14 +88,31 @@ export default function DinnerPlanner() {
       console.error("Error planning dinners:", error);
       
       let errorMessage = "Sorry, we encountered an error planning your dinners. Please try again.";
+      let errorDetails = "";
       
       // Try to extract more specific error message from the response
       if (error?.response?.json) {
         error.response.json().then((data: any) => {
           if (data?.message) {
+            // Parse the webhook error details
+            try {
+              const match = data.message.match(/Details: ({.*})/);
+              if (match) {
+                const errorObj = JSON.parse(match[1]);
+                errorMessage = errorObj.message || errorMessage;
+                if (testMode) {
+                  errorDetails = `Code: ${errorObj.code}\nHint: ${errorObj.hint}`;
+                }
+              } else {
+                errorMessage = data.message;
+              }
+            } catch {
+              errorMessage = data.message;
+            }
+            
             toast({
               title: "Error",
-              description: data.message,
+              description: testMode && errorDetails ? `${errorMessage}\n\n${errorDetails}` : errorMessage,
               variant: "destructive",
             });
           }
@@ -363,6 +382,20 @@ export default function DinnerPlanner() {
             </Card>
           </div>
         )}
+      </div>
+      
+      {/* Test Mode Toggle - Fixed position in lower right */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg border" style={{ borderColor: 'var(--border-light)' }}>
+          <label htmlFor="test-mode" className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+            Test Mode
+          </label>
+          <Switch
+            id="test-mode"
+            checked={testMode}
+            onCheckedChange={setTestMode}
+          />
+        </div>
       </div>
     </div>
   );

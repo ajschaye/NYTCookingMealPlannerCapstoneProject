@@ -96,15 +96,25 @@ export default function DinnerPlanner() {
           if (data?.message) {
             // Parse the webhook error details
             try {
-              const match = data.message.match(/Details: ({.*})/);
+              const match = data.message.match(/Details:\s*({.*})/);
               if (match) {
                 const errorObj = JSON.parse(match[1]);
-                errorMessage = errorObj.message || errorMessage;
+                errorMessage = errorObj.message || "Webhook error occurred";
                 if (testMode) {
-                  errorDetails = `Code: ${errorObj.code}\nHint: ${errorObj.hint}`;
+                  errorDetails = `Error Code: ${errorObj.code || 'Unknown'}\n\nTechnical Details: ${errorObj.hint || 'No additional details available'}`;
                 }
               } else {
-                errorMessage = data.message;
+                // Check if the entire message is JSON
+                try {
+                  const parsed = JSON.parse(data.message);
+                  errorMessage = parsed.message || data.message;
+                  if (testMode && parsed.code) {
+                    errorDetails = `Error Code: ${parsed.code}\n\nTechnical Details: ${parsed.hint || 'No additional details available'}`;
+                  }
+                } catch {
+                  // Not JSON, use as-is but clean it up
+                  errorMessage = data.message.replace(/^.*?Details:\s*/, '').replace(/[{}]/g, '').replace(/"/g, '');
+                }
               }
             } catch {
               errorMessage = data.message;

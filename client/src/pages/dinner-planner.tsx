@@ -289,7 +289,7 @@ export default function DinnerPlanner() {
                           className="text-lg font-medium"
                           style={{ color: "var(--text-primary)" }}
                         >
-                          {index + 1}
+                          Dinner {index + 1}
                         </h3>
                         {meal.cookTime && (
                           <span

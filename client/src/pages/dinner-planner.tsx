@@ -154,6 +154,21 @@ export default function DinnerPlanner() {
     onSuccess: (data: any) => {
       console.log('Webhook response:', data);
       
+      // Check if webhook response contains an error
+      if (data.error) {
+        toast({
+          title: "Planning Failed",
+          description: data.error,
+          variant: "destructive",
+        });
+        
+        // Store error response for test mode
+        if (testMode) {
+          setWebhookResponse(JSON.stringify(data, null, 2));
+        }
+        return;
+      }
+      
       // Handle different response formats
       let meals: any[] = [];
       

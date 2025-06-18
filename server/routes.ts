@@ -20,12 +20,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         meal_type: "dinner"
       };
 
+      // Create Basic Auth header
+      const username = process.env.WEBHOOK_USER;
+      const password = process.env.WEBHOOK_PWD;
+      
+      if (!username || !password) {
+        return res.status(500).json({
+          success: false,
+          message: "Webhook credentials not configured. Please set WEBHOOK_USER and WEBHOOK_PWD environment variables."
+        });
+      }
+      
+      const basicAuth = Buffer.from(`${username}:${password}`).toString('base64');
+
       // Send request to webhook
       const webhookResponse = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'CapstoneTestCred': 'CapstoneTestCred1234567890'
+          'Authorization': `Basic ${basicAuth}`
         },
         body: JSON.stringify(webhookPayload)
       });

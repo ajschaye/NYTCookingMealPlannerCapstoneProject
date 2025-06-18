@@ -169,6 +169,21 @@ export default function DinnerPlanner() {
         return;
       }
       
+      // Check if response is an array and first element has an error
+      if (Array.isArray(data) && data.length > 0 && data[0].error) {
+        toast({
+          title: "Planning Failed",
+          description: data[0].error,
+          variant: "destructive",
+        });
+        
+        // Store error response for test mode
+        if (testMode) {
+          setWebhookResponse(JSON.stringify(data, null, 2));
+        }
+        return;
+      }
+      
       // Handle different response formats
       let meals: any[] = [];
       

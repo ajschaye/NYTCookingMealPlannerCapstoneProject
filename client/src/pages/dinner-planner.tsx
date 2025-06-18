@@ -498,17 +498,17 @@ export default function DinnerPlanner() {
                           <div className="flex justify-end items-center gap-3 mt-4">
                             <button
                               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                              onClick={() => console.log('Thumbs down:', meal.mealName || meal.name)}
-                              title="Thumbs down"
-                            >
-                              <ThumbsDown className="w-4 h-4 text-gray-500 hover:text-red-500" />
-                            </button>
-                            <button
-                              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                               onClick={() => console.log('Thumbs up:', meal.mealName || meal.name)}
                               title="Thumbs up"
                             >
                               <ThumbsUp className="w-4 h-4 text-gray-500 hover:text-green-500" />
+                            </button>
+                            <button
+                              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                              onClick={() => console.log('Thumbs down:', meal.mealName || meal.name)}
+                              title="Thumbs down"
+                            >
+                              <ThumbsDown className="w-4 h-4 text-gray-500 hover:text-red-500" />
                             </button>
                             <button
                               className="p-2 rounded-full hover:bg-gray-100 transition-colors"

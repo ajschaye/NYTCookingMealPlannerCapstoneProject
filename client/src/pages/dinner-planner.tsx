@@ -40,7 +40,16 @@ export default function DinnerPlanner() {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [testMode, setTestMode] = useState(false);
+  const [webhookPayload, setWebhookPayload] = useState<string>("");
   const { toast } = useToast();
+
+  // Clear webhook payload when test mode is turned off
+  const handleTestModeChange = (checked: boolean) => {
+    setTestMode(checked);
+    if (!checked) {
+      setWebhookPayload("");
+    }
+  };
 
   const form = useForm<DinnerPlanRequest>({
     resolver: zodResolver(dinnerPlanRequestSchema),
@@ -194,6 +203,10 @@ export default function DinnerPlanner() {
   });
 
   const onSubmit = (data: DinnerPlanRequest) => {
+    // Store the webhook payload for test mode display
+    if (testMode) {
+      setWebhookPayload(JSON.stringify(data, null, 2));
+    }
     planDinnersMutation.mutate(data);
   };
 
@@ -358,6 +371,18 @@ export default function DinnerPlanner() {
                     )}
                   </Button>
                 </div>
+
+                {/* Test Mode Webhook Payload Display */}
+                {testMode && webhookPayload && (
+                  <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border" style={{ borderColor: 'var(--border-light)' }}>
+                    <h3 className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                      Webhook Payload:
+                    </h3>
+                    <pre className="text-xs overflow-x-auto whitespace-pre-wrap" style={{ color: 'var(--text-secondary)' }}>
+                      {webhookPayload}
+                    </pre>
+                  </div>
+                )}
               </form>
             </Form>
           </CardContent>
@@ -440,7 +465,7 @@ export default function DinnerPlanner() {
           <Switch
             id="test-mode"
             checked={testMode}
-            onCheckedChange={setTestMode}
+            onCheckedChange={handleTestModeChange}
           />
         </div>
       </div>

@@ -407,6 +407,12 @@ export default function DinnerPlanner() {
   });
 
   const onSubmit = (data: DinnerPlanRequest) => {
+    // Reset meal plan visibility and data when starting a new plan
+    setShowResults(false);
+    setMeals([]);
+    setLikedMeals(new Set());
+    setDislikedMeals(new Set());
+    
     // Store the webhook payload for test mode display
     if (testMode) {
       const webhookPayload = {

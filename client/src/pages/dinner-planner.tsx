@@ -501,7 +501,7 @@ export default function DinnerPlanner() {
                               onClick={() => console.log('Thumbs up:', meal.mealName || meal.name)}
                               title="Thumbs up"
                             >
-                              <ThumbsUp className="w-4 h-4 text-gray-500 hover:text-green-500" />
+                              <ThumbsUp className="w-4 h-4 text-green-500 fill-green-500 hover:text-green-600 hover:fill-green-600" />
                             </button>
                             <button
                               className="p-2 rounded-full hover:bg-gray-100 transition-colors"

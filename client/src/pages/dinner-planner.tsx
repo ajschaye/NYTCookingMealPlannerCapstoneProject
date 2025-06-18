@@ -41,6 +41,7 @@ export default function DinnerPlanner() {
   const [showResults, setShowResults] = useState(false);
   const [testMode, setTestMode] = useState(false);
   const [webhookPayload, setWebhookPayload] = useState<string>("");
+  const [webhookResponse, setWebhookResponse] = useState<string>("");
   const { toast } = useToast();
 
   // Clear webhook payload when test mode is turned off
@@ -48,6 +49,7 @@ export default function DinnerPlanner() {
     setTestMode(checked);
     if (!checked) {
       setWebhookPayload("");
+      setWebhookResponse("");
     }
   };
 
@@ -79,6 +81,11 @@ export default function DinnerPlanner() {
       setMeals(data.meals || []);
       setShowResults(true);
 
+      // Store webhook response for test mode
+      if (testMode) {
+        setWebhookResponse(JSON.stringify(data, null, 2));
+      }
+
       const dinnerCount = form.getValues("dinnerCount");
       toast({
         title: "Success!",
@@ -102,7 +109,9 @@ export default function DinnerPlanner() {
       if (error?.response?.json) {
         error.response.json().then((data: any) => {
           if (data?.message) {
+            // Store error response for test mode
             if (testMode) {
+              setWebhookResponse(JSON.stringify(data, null, 2));
               // In test mode, show the JSON in readable format
               try {
                 // Try to parse as JSON
@@ -379,13 +388,27 @@ export default function DinnerPlanner() {
 
                 {/* Test Mode Webhook Payload Display */}
                 {testMode && webhookPayload && (
-                  <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border" style={{ borderColor: 'var(--border-light)' }}>
-                    <h3 className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
-                      Webhook Payload:
-                    </h3>
-                    <pre className="text-xs overflow-x-auto whitespace-pre-wrap" style={{ color: 'var(--text-secondary)' }}>
-                      {webhookPayload}
-                    </pre>
+                  <div className="mt-6 space-y-4">
+                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border" style={{ borderColor: 'var(--border-light)' }}>
+                      <h3 className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                        Webhook Payload:
+                      </h3>
+                      <pre className="text-xs overflow-x-auto whitespace-pre-wrap" style={{ color: 'var(--text-secondary)' }}>
+                        {webhookPayload}
+                      </pre>
+                    </div>
+                    
+                    {/* Webhook Response Display */}
+                    {webhookResponse && (
+                      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border" style={{ borderColor: 'var(--border-light)' }}>
+                        <h3 className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                          Webhook Response:
+                        </h3>
+                        <pre className="text-xs overflow-x-auto whitespace-pre-wrap" style={{ color: 'var(--text-secondary)' }}>
+                          {webhookResponse}
+                        </pre>
+                      </div>
+                    )}
                   </div>
                 )}
               </form>

@@ -218,7 +218,7 @@ export default function DinnerPlanner() {
                     >
                       <div className="flex items-start justify-between mb-3">
                         <h3 className="text-lg font-medium" style={{ color: 'var(--text-primary)' }}>
-                          Day {index + 1}: {meal.name}
+                          {index + 1}: {meal.name}
                         </h3>
                         {meal.cookTime && (
                           <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>

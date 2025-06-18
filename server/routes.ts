@@ -17,7 +17,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const webhookPayload = {
         number_of_meals: validatedData.dinnerCount,
         personalization: validatedData.preferences || "",
-        meal_type: "dinner"
+        mealTypes: ["dinner"]
       };
 
       // Create Basic Auth header

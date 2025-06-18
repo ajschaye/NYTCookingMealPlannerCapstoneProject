@@ -87,42 +87,43 @@ export default function DinnerPlanner() {
     onError: (error: any) => {
       console.error("Error planning dinners:", error);
       
-      let errorMessage = "Sorry, we encountered an error planning your dinners. Please try again.";
-      let errorDetails = "";
+      let errorMessage = "Sorry, we encountered an error planning your dinners. Please try again later.";
       
       // Try to extract more specific error message from the response
       if (error?.response?.json) {
         error.response.json().then((data: any) => {
           if (data?.message) {
-            // Parse the webhook error details
-            try {
-              const match = data.message.match(/Details:\s*({.*})/);
-              if (match) {
-                const errorObj = JSON.parse(match[1]);
-                errorMessage = errorObj.message || "Webhook error occurred";
-                if (testMode) {
-                  errorDetails = `Error Code: ${errorObj.code || 'Unknown'}\n\nTechnical Details: ${errorObj.hint || 'No additional details available'}`;
-                }
-              } else {
-                // Check if the entire message is JSON
-                try {
-                  const parsed = JSON.parse(data.message);
-                  errorMessage = parsed.message || data.message;
-                  if (testMode && parsed.code) {
-                    errorDetails = `Error Code: ${parsed.code}\n\nTechnical Details: ${parsed.hint || 'No additional details available'}`;
-                  }
-                } catch {
-                  // Not JSON, use as-is but clean it up
-                  errorMessage = data.message.replace(/^.*?Details:\s*/, '').replace(/[{}]/g, '').replace(/"/g, '');
-                }
+            if (testMode) {
+              // In test mode, show the JSON in readable format
+              try {
+                // Try to parse as JSON
+                const jsonData = JSON.parse(data.message);
+                const formattedJson = JSON.stringify(jsonData, null, 2);
+                toast({
+                  title: "Error (Test Mode)",
+                  description: formattedJson,
+                  variant: "destructive",
+                });
+              } catch {
+                // If not valid JSON, show the raw message
+                toast({
+                  title: "Error (Test Mode)",
+                  description: data.message,
+                  variant: "destructive",
+                });
               }
-            } catch {
-              errorMessage = data.message;
+            } else {
+              // In normal mode, show standard error message
+              toast({
+                title: "Error",
+                description: errorMessage,
+                variant: "destructive",
+              });
             }
-            
+          } else {
             toast({
               title: "Error",
-              description: testMode && errorDetails ? `${errorMessage}\n\n${errorDetails}` : errorMessage,
+              description: errorMessage,
               variant: "destructive",
             });
           }
@@ -134,18 +135,54 @@ export default function DinnerPlanner() {
           });
         });
       } else if (error?.message) {
-        errorMessage = error.message;
-        toast({
-          title: "Error",
-          description: errorMessage,
-          variant: "destructive",
-        });
+        if (testMode) {
+          try {
+            // Try to parse error message as JSON
+            const jsonData = JSON.parse(error.message);
+            const formattedJson = JSON.stringify(jsonData, null, 2);
+            toast({
+              title: "Error (Test Mode)",
+              description: formattedJson,
+              variant: "destructive",
+            });
+          } catch {
+            toast({
+              title: "Error (Test Mode)",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
+        }
       } else if (typeof error === 'string') {
-        toast({
-          title: "Error",
-          description: error,
-          variant: "destructive",
-        });
+        if (testMode) {
+          try {
+            const jsonData = JSON.parse(error);
+            const formattedJson = JSON.stringify(jsonData, null, 2);
+            toast({
+              title: "Error (Test Mode)",
+              description: formattedJson,
+              variant: "destructive",
+            });
+          } catch {
+            toast({
+              title: "Error (Test Mode)",
+              description: error,
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Error",
+            description: errorMessage,
+            variant: "destructive",
+          });
+        }
       } else {
         toast({
           title: "Error",

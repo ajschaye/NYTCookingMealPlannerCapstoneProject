@@ -213,7 +213,7 @@ export default function DinnerPlanner() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel
-                          className="text-lg font-medium"
+                          className="text-lg font-bold"
                           style={{ color: "var(--text-primary)" }}
                         >
                           Tell us about your preferences
